@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model File {
+	id				Int    @id
+	byte_size Int
+	file_idx  	Int
+	name      String
+	org_name  String
+	type      String
+}
+
+model User {
+	user_id               String   	@id
+	user_name             String
+	email                 String
+	enabled               Int
+	password              String
+	last_password_changed DateTime?
+	create_date           DateTime  @default(now())
+	update_date           DateTime	@updatedAt
+	UserRole              UserRole[]
+}
+
+model Tag {
+	id            Int    		@id
+	date_created  DateTime 	@default(now())
+	description   String?
+	name          String
+	tagged_count  Int?
+}
+
+model Role {
+	id       	Int     @id
+	role_name String
+	role_desc String
+	UserRole  UserRole[]
+	RoleAuth  RoleAuth[]
+}
+
+model Post {
+	post_id     Int      	@id
+	create_date DateTime 	@default(now())
+	update_date DateTime 	@updatedAt
+	text        String
+	post_like   Int?
+	scrap_count Int?
+}
+
+model PostTag {
+	post_id Int
+	tag_id  Int
+
+	@@id([post_id, tag_id])
+}
+
+model Bookmark {
+	user_id String
+	post_id Int
+
+	@@id([user_id, post_id])
+}
+
+model PostFile {
+	post_id Int
+	file_id 	Int
+
+	@@id([post_id, file_id])
+}
+
+model UserRole {
+	user 		User @relation(fields: [user_id], references: [user_id])
+	role 		Role @relation(fields: [role_id], references: [id])
+	user_id String
+	role_id Int
+
+	@@id([user_id, role_id])
+}
+
+model Auth {
+	id        	Int      @id
+	auth_name 	String?
+	auth_descr 	String?
+	RoleAuth  	RoleAuth[]
+}
+
+model RoleAuth {
+	role 		Role @relation(fields: [role_id], references: [id])
+	auth 		Auth @relation(fields: [auth_id], references: [id])
+	role_id Int
+	auth_id Int
+
+	@@id([role_id, auth_id])
+}
